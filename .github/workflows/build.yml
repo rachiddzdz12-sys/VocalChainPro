@@ -34,7 +34,9 @@ jobs:
 
       - name: Exécuter le harnais de diagnostic (test module par module)
         run: |
-          build\Release\CrashHarness.exe
+          for /r %%f in (CrashHarness.exe) do set HARNESS_PATH=%%f
+          echo Chemin trouve: %HARNESS_PATH%
+          "%HARNESS_PATH%"
         shell: cmd
         continue-on-error: true
 
