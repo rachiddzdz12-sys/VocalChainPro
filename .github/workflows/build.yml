@@ -32,14 +32,9 @@ jobs:
           powershell -command "Expand-Archive -Path pluginval.zip -DestinationPath ."
         shell: cmd
 
-      - name: Installer les outils de débogage Windows (WinDbg/cdb)
-        run: choco install windbg -y
-        shell: cmd
-
-      - name: Diagnostic approfondi (stack trace exacte du crash)
+      - name: Exécuter le harnais de diagnostic (test module par module)
         run: |
-          "C:\Program Files\Windbg\cdb.exe" -o -g -G -c "g;~*kb;q" pluginval.exe --strictness-level 5 --validate "build\VocalChainPro_artefacts\Release\VST3\Vocal Chain Pro.vst3" > crash_report.txt 2>&1
-          type crash_report.txt
+          build\Release\CrashHarness.exe
         shell: cmd
         continue-on-error: true
 

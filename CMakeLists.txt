@@ -120,3 +120,48 @@ target_compile_definitions(VocalChainPro PRIVATE
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
 )
+
+# ------------------------------------------------------------------------------
+# 6. Harnais de diagnostic (programme console qui teste chaque module isolément
+#    et catch les crashs individuellement pour identifier le module fautif)
+# ------------------------------------------------------------------------------
+juce_add_console_app(CrashHarness
+    PRODUCT_NAME "CrashHarness")
+
+juce_generate_juce_header(CrashHarness)
+
+target_sources(CrashHarness PRIVATE
+    Source/Diagnostics/CrashHarness.cpp
+    Source/Modules/GainStageModule.cpp
+    Source/Modules/PreampModule.cpp
+    Source/Modules/HPFModule.cpp
+    Source/Modules/GateModule.cpp
+    Source/Modules/CorrectiveEQModule.cpp
+    Source/Modules/CompOptoFETModule.cpp
+    Source/Modules/DeEsserModule.cpp
+    Source/Modules/ColorEQModule.cpp
+    Source/Modules/GlueCompModule.cpp
+    Source/Modules/ExciterModule.cpp
+    Source/Modules/ReverbDelayModule.cpp
+    Source/Modules/OutputStageModule.cpp
+)
+
+target_include_directories(CrashHarness PRIVATE
+    Source
+    Source/Common
+    Source/Modules
+)
+
+target_link_libraries(CrashHarness PRIVATE
+    juce::juce_audio_basics
+    juce::juce_core
+    juce::juce_dsp
+    juce::juce_events
+    juce::juce_recommended_config_flags
+    juce::juce_recommended_warning_flags
+)
+
+# /EHa nécessaire pour mélanger la gestion d'exceptions structurées Windows (__try/__except)
+# avec des objets C++ ayant des destructeurs (comme std::unique_ptr) dans la même fonction
+target_compile_options(CrashHarness PRIVATE /EHa)
+
