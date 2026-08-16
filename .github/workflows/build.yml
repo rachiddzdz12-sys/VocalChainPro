@@ -26,6 +26,18 @@ jobs:
         run: dir /s /b build\VocalChainPro_artefacts\Release
         shell: cmd
 
+      - name: Télécharger pluginval (validateur de plugin)
+        run: |
+          curl -L -o pluginval.zip https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_Windows.zip
+          powershell -command "Expand-Archive -Path pluginval.zip -DestinationPath ."
+        shell: cmd
+
+      - name: Valider le plugin (diagnostic détaillé)
+        run: |
+          pluginval.exe --strictness-level 5 --validate "build\VocalChainPro_artefacts\Release\VST3\Vocal Chain Pro.vst3"
+        shell: cmd
+        continue-on-error: true
+
       - name: Installer Inno Setup
         run: choco install innosetup -y
 
