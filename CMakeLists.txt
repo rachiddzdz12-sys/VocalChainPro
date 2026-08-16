@@ -38,6 +38,9 @@ juce_add_plugin(VocalChainPro
     PRODUCT_NAME "Vocal Chain Pro"
 )
 
+# Génère automatiquement JuceHeader.h, requis par tous les modules qui l'incluent
+juce_generate_juce_header(VocalChainPro)
+
 # ------------------------------------------------------------------------------
 # 3. Liste des fichiers sources
 # ------------------------------------------------------------------------------
