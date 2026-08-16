@@ -10,15 +10,6 @@ void PreampModule::prepare(const juce::dsp::ProcessSpec& spec)
     sampleRate = spec.sampleRate;
     drive.reset(sampleRate, 0.02); // 20ms lissage
 
-    // Initialisation du suréchantillonnage 2x (filtrage polyphasé IIR)
-    oversampling = std::make_unique<juce::dsp::Oversampling<float>>(
-        spec.numChannels,
-        1, // Factor 2x (2^1)
-        juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR,
-        true
-    );
-
-    oversampling->initProcessing(spec.maximumBlockSize);
     reset();
 }
 
@@ -27,9 +18,6 @@ void PreampModule::reset()
     drive.setCurrentAndTargetValue(drive.getTargetValue());
     x1.fill(0.0f);
     y1.fill(0.0f);
-
-    if (oversampling)
-        oversampling->reset();
 }
 
 void PreampModule::setDrive(float newDrive)
@@ -42,11 +30,6 @@ void PreampModule::setDrive(float newDrive)
 void PreampModule::setPreampType(PreampType newType)
 {
     currentType = newType;
-}
-
-void PreampModule::setOversamplingEnabled(bool enable)
-{
-    oversamplingEnabled = enable;
 }
 
 float PreampModule::processSample(float sample)
@@ -93,65 +76,27 @@ void PreampModule::process(juce::dsp::AudioBlock<float>& block)
     if (bypassed)
         return;
 
-    // Traitement avec ou sans Oversampling
-    if (oversamplingEnabled && oversampling)
+    const size_t numChannels = block.getNumChannels();
+    const size_t numSamples = block.getNumSamples();
+
+    for (size_t ch = 0; ch < numChannels; ++ch)
     {
-        // Up-sampling (2x)
-        juce::dsp::AudioBlock<float> oversampledBlock = oversampling->processSamplesUp(block);
+        float* channelData = block.getChannelPointer(ch);
+        const size_t safeCh = std::min(ch, size_t(1));
 
-        const size_t numChannels = oversampledBlock.getNumChannels();
-        const size_t numSamples = oversampledBlock.getNumSamples();
-
-        for (size_t ch = 0; ch < numChannels; ++ch)
+        for (size_t i = 0; i < numSamples; ++i)
         {
-            float* channelData = oversampledBlock.getChannelPointer(ch);
-            const size_t safeCh = std::min(ch, size_t(1));
+            float processed = processSample(channelData[i]);
 
-            for (size_t i = 0; i < numSamples; ++i)
+            if (currentType == PreampType::Tube)
             {
-                float processed = processSample(channelData[i]);
-
-                // DC Blocker pour éliminer l'offset continu (nécessaire en mode Tube)
-                if (currentType == PreampType::Tube)
-                {
-                    float temp = processed;
-                    processed = processed - x1[safeCh] + R_dc * y1[safeCh];
-                    x1[safeCh] = temp;
-                    y1[safeCh] = processed;
-                }
-
-                channelData[i] = processed;
+                float temp = processed;
+                processed = processed - x1[safeCh] + R_dc * y1[safeCh];
+                x1[safeCh] = temp;
+                y1[safeCh] = processed;
             }
-        }
 
-        // Down-sampling vers le Sample Rate original avec filtre anti-aliasing
-        oversampling->processSamplesDown(block);
-    }
-    else
-    {
-        // Traitement direct au sample rate hôte
-        const size_t numChannels = block.getNumChannels();
-        const size_t numSamples = block.getNumSamples();
-
-        for (size_t ch = 0; ch < numChannels; ++ch)
-        {
-            float* channelData = block.getChannelPointer(ch);
-            const size_t safeCh = std::min(ch, size_t(1));
-
-            for (size_t i = 0; i < numSamples; ++i)
-            {
-                float processed = processSample(channelData[i]);
-
-                if (currentType == PreampType::Tube)
-                {
-                    float temp = processed;
-                    processed = processed - x1[safeCh] + R_dc * y1[safeCh];
-                    x1[safeCh] = temp;
-                    y1[safeCh] = processed;
-                }
-
-                channelData[i] = processed;
-            }
+            channelData[i] = processed;
         }
     }
 }

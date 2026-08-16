@@ -28,9 +28,6 @@ public:
     /** Régle le type de préampli (Clean, Tube, Transistor) */
     void setPreampType(PreampType newType);
 
-    /** Active/désactive le suréchantillonnage anti-aliasing (2x) */
-    void setOversamplingEnabled(bool enable);
-
 private:
     float processSample(float sample);
     
@@ -44,8 +41,4 @@ private:
     std::array<float, 2> x1 { 0.0f, 0.0f };
     std::array<float, 2> y1 { 0.0f, 0.0f };
     static constexpr float R_dc = 0.995f;
-
-    // Suréchantillonnage 2x pour éliminer l'aliasing
-    std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
-    bool oversamplingEnabled { true };
 };
