@@ -29,7 +29,7 @@ void ColorEQModule::updateBand(size_t i)
     else if (i == 5) c = juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, bands[i].freq, bands[i].Q, g);
     else c = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, bands[i].freq, bands[i].Q, g);
 
-    if (c) *filters[i].state = *c;
+    if (c) *filters[i].coefficients = *c;
 }
 
 void ColorEQModule::process(juce::dsp::AudioBlock<float>& block)

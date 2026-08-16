@@ -28,9 +28,9 @@ void DeEsserModule::reset()
 void DeEsserModule::updateFilters()
 {
     if (sampleRate <= 0.0) return;
-    *bandpassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, frequencyHz, 2.0f);
-    *highpassCrossover.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, frequencyHz);
-    *lowpassCrossover.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, frequencyHz);
+    *bandpassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, frequencyHz, 2.0f);
+    *highpassCrossover.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, frequencyHz);
+    *lowpassCrossover.coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, frequencyHz);
 }
 
 void DeEsserModule::process(juce::dsp::AudioBlock<float>& block)
@@ -79,7 +79,7 @@ void DeEsserModule::process(juce::dsp::AudioBlock<float>& block)
             else // Split-Band
             {
                 const float in = block.getChannelPointer(ch)[i];
-                const float highPass = highpassCrossover.state->processSample(in);
+                const float highPass = highpassCrossover.processSample(in);
                 const float lowPass = in - highPass;
                 block.getChannelPointer(ch)[i] = lowPass + (highPass * gainLin);
             }

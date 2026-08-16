@@ -18,7 +18,7 @@ void OutputStageModule::prepare(const juce::dsp::ProcessSpec& spec)
 
 void OutputStageModule::reset()
 {
-    volume.snapToTargetValue();
+    volume.setCurrentAndTargetValue(volume.getTargetValue());
     peakLevels.fill(0.0f);
     rmsLevels.fill(0.0f);
     kWeightHighShelf.reset();

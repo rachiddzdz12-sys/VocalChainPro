@@ -102,6 +102,9 @@ private:
     juce::TextButton savePresetButton { "Save" };
     juce::TextButton loadPresetButton { "Load" };
 
+    // Doit rester en vie pendant toute la durée de la boîte de dialogue asynchrone
+    std::unique_ptr<juce::FileChooser> activeFileChooser;
+
     // Vue défilante horizontale pour aligner les 13 modules
     juce::Viewport viewport;
     juce::Component containerComponent;

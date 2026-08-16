@@ -35,9 +35,9 @@ private:
     DeEsserMode mode { DeEsserMode::SplitBand };
 
     using Filter = juce::dsp::IIR::Filter<float>;
-    juce::dsp::ProcessorDuplex<Filter> bandpassFilter;
-    juce::dsp::ProcessorDuplex<Filter> highpassCrossover;
-    juce::dsp::ProcessorDuplex<Filter> lowpassCrossover;
+    Filter bandpassFilter;
+    Filter highpassCrossover;
+    Filter lowpassCrossover;
 
     float envelope { 0.0f };
     float attackAlpha { 0.0f }, releaseAlpha { 0.0f };

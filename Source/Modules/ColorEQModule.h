@@ -30,5 +30,5 @@ private:
     std::array<Band, numBands> bands;
 
     using Filter = juce::dsp::IIR::Filter<float>;
-    std::array<juce::dsp::ProcessorDuplex<Filter>, numBands> filters;
+    std::array<Filter, numBands> filters;
 };

@@ -170,34 +170,46 @@ void VocalChainAudioProcessorEditor::setupPresetsSection()
 
 void VocalChainAudioProcessorEditor::savePreset()
 {
-    juce::FileChooser chooser("Enregistrer le Preset",
-                               juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
-                               "*.xml");
+    activeFileChooser = std::make_unique<juce::FileChooser>(
+        "Enregistrer le Preset",
+        juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
+        "*.xml");
 
-    if (chooser.browseForFileToSave(true))
+    auto flags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting;
+
+    activeFileChooser->launchAsync(flags, [this](const juce::FileChooser& chooser)
     {
         auto file = chooser.getResult();
-        auto state = audioProcessor.apvts.copyState();
-        std::unique_ptr<juce::XmlElement> xml(state.createXml());
-        xml->writeTo(file);
-    }
+        if (file != juce::File{})
+        {
+            auto state = audioProcessor.apvts.copyState();
+            std::unique_ptr<juce::XmlElement> xml(state.createXml());
+            xml->writeTo(file);
+        }
+    });
 }
 
 void VocalChainAudioProcessorEditor::loadPreset()
 {
-    juce::FileChooser chooser("Charger un Preset",
-                               juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
-                               "*.xml");
+    activeFileChooser = std::make_unique<juce::FileChooser>(
+        "Charger un Preset",
+        juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
+        "*.xml");
 
-    if (chooser.browseForFileToOpen())
+    auto flags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    activeFileChooser->launchAsync(flags, [this](const juce::FileChooser& chooser)
     {
         auto file = chooser.getResult();
-        auto xml = juce::XmlDocument::parse(file);
-        if (xml != nullptr && xml->hasTagName(audioProcessor.apvts.state.getType()))
+        if (file != juce::File{})
         {
-            audioProcessor.apvts.replaceState(juce::ValueTree::fromXml(*xml));
+            auto xml = juce::XmlDocument::parse(file);
+            if (xml != nullptr && xml->hasTagName(audioProcessor.apvts.state.getType()))
+            {
+                audioProcessor.apvts.replaceState(juce::ValueTree::fromXml(*xml));
+            }
         }
-    }
+    });
 }
 
 void VocalChainAudioProcessorEditor::timerCallback()

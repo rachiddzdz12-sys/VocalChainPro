@@ -20,7 +20,7 @@ void GainStageModule::prepare(const juce::dsp::ProcessSpec& spec)
 
 void GainStageModule::reset()
 {
-    smoothedGain.snapToTargetValue();
+    smoothedGain.setCurrentAndTargetValue(smoothedGain.getTargetValue());
     peakLevels.fill(0.0f);
     rmsLevels.fill(0.0f);
 }

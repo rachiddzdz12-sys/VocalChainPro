@@ -24,7 +24,7 @@ void PreampModule::prepare(const juce::dsp::ProcessSpec& spec)
 
 void PreampModule::reset()
 {
-    drive.snapToTargetValue();
+    drive.setCurrentAndTargetValue(drive.getTargetValue());
     x1.fill(0.0f);
     y1.fill(0.0f);
 

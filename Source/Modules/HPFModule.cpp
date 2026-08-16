@@ -50,7 +50,7 @@ void HPFModule::updateFilters()
     {
         // Butterworth standard Q = 1/sqrt(2) = 0.7071
         auto coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, cutoffHz, 0.70710678f);
-        *filterCascade1.state = *coefficients;
+        *filterCascade1.coefficients = *coefficients;
     }
     else // Slope24dB
     {
@@ -59,8 +59,8 @@ void HPFModule::updateFilters()
         auto coeffs1 = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, cutoffHz, 0.5411961f);
         auto coeffs2 = juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, cutoffHz, 1.3065630f);
 
-        *filterCascade1.state = *coeffs1;
-        *filterCascade2.state = *coeffs2;
+        *filterCascade1.coefficients = *coeffs1;
+        *filterCascade2.coefficients = *coeffs2;
     }
 }
 

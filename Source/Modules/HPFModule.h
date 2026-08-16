@@ -38,8 +38,8 @@ private:
 
     // Duplex IIR Filter de JUCE (découple la logique DSP bas niveau)
     using Filter = juce::dsp::IIR::Filter<float>;
-    using DuplexFilter = juce::dsp::ProcessorDuplex<Filter>;
+    
 
-    DuplexFilter filterCascade1;
-    DuplexFilter filterCascade2;
+    Filter filterCascade1;
+    Filter filterCascade2;
 };

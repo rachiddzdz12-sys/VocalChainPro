@@ -79,7 +79,7 @@ void CorrectiveEQModule::updateBandCoefficients(size_t bandIndex)
 
     if (newCoeffs)
     {
-        *filters[bandIndex].state = *newCoeffs;
+        *filters[bandIndex].coefficients = *newCoeffs;
     }
 }
 
