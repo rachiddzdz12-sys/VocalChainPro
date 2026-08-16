@@ -1,0 +1,47 @@
+name: Build Vocal Chain Pro (Windows VST3 + Installer)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configurer CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Générer le projet (CMake configure)
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Compiler en mode Release
+        run: cmake --build build --config Release --parallel
+
+      - name: Lister les fichiers produits (debug)
+        run: dir /s /b build\VocalChainPro_artefacts\Release
+        shell: cmd
+
+      - name: Installer Inno Setup
+        run: choco install innosetup -y
+
+      - name: Générer l'installeur .exe
+        run: |
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\VocalChainPro.iss
+        shell: cmd
+
+      - name: Uploader le VST3 brut (au cas où)
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalChainPro-VST3
+          path: build/VocalChainPro_artefacts/Release/VST3/**
+
+      - name: Uploader l'installeur .exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalChainPro-Installer
+          path: installer/Output/*.exe
